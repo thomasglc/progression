@@ -34,7 +34,7 @@ export interface CompetenceSeance {
 export interface Seance {
   id: number
   titre: string
-  type: 'tp' | 'cm' | 'ap' | 'eval'
+  type: 'tp' | 'cours' | 'ap' | 'eval'
   duree: string
   points: string[]
   objectif: string

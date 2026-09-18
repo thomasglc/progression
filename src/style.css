@@ -180,7 +180,264 @@ body {
 }
 .ref-sa { font-size: 10.5px; color: var(--text-3); font-style: italic; line-height: 1.3; }
 
-/* États */
+/* ─── Admin toolbar ────────────────────────────────────────── */
+.header-admin-zone {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+
+.admin-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  background: var(--amber-badge);
+  color: var(--amber);
+  border: 1px solid var(--amber);
+  padding: 2px 8px;
+  border-radius: 30px;
+}
+
+.btn-admin-login {
+  font-size: 14px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 3px 8px;
+  cursor: pointer;
+  color: var(--text-3);
+  transition: all .15s;
+}
+.btn-admin-login:hover { color: var(--text-1); border-color: var(--text-2); }
+
+.btn-admin-logout {
+  font-size: 11px;
+  font-weight: 600;
+  background: none;
+  border: 1px solid var(--amber);
+  border-radius: 6px;
+  padding: 3px 10px;
+  cursor: pointer;
+  color: var(--amber);
+  transition: all .15s;
+}
+.btn-admin-logout:hover { background: var(--amber-badge); }
+
+/* ─── Session admin buttons ─────────────────────────────────── */
+.session-admin-btns {
+  margin-left: auto;
+  display: flex;
+  gap: .25rem;
+  opacity: 0;
+  transition: opacity .15s;
+}
+.session:hover .session-admin-btns { opacity: 1; }
+
+.btn-admin-edit, .btn-admin-delete {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  line-height: 1.4;
+}
+.btn-admin-edit { background: var(--indigo-badge); color: var(--indigo); }
+.btn-admin-delete { background: #fee2e2; color: #b91c1c; }
+
+/* ─── Add buttons ───────────────────────────────────────────── */
+.add-seance-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  font-weight: 300;
+  color: var(--text-3);
+  background: var(--week-bg);
+  border: 1.5px dashed var(--border);
+  border-radius: 0;
+  cursor: pointer;
+  min-height: 60px;
+  transition: all .15s;
+  padding: 0;
+}
+.add-seance-btn:hover { color: var(--text-1); border-color: var(--text-2); background: var(--surface); }
+
+.add-semaine-btn {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-3);
+  background: var(--surface);
+  border: 1.5px dashed var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  padding: .65rem 1.2rem;
+  transition: all .15s;
+  text-align: left;
+}
+.add-semaine-btn:hover { color: var(--text-1); border-color: var(--text-2); }
+
+/* ─── Modal ─────────────────────────────────────────────────── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 1rem;
+}
+
+.modal {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 1.75rem;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 40px rgba(0,0,0,.2);
+}
+
+.modal-title {
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-1);
+  margin-bottom: 1.25rem;
+}
+
+/* ─── Form elements ──────────────────────────────────────────── */
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .65rem;
+}
+
+.field { display: flex; flex-direction: column; gap: .3rem; }
+.field-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.field-static {
+  font-size: 13px;
+  color: var(--text-2);
+  font-style: italic;
+}
+
+.field-input {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: var(--text-1);
+  background: var(--ref-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .45rem .65rem;
+  outline: none;
+  transition: border-color .15s;
+  width: 100%;
+  resize: vertical;
+}
+.field-input:focus { border-color: var(--indigo); }
+
+.point-row, .comp-row {
+  display: flex;
+  gap: .4rem;
+  align-items: center;
+}
+.comp-select { max-width: 90px; flex-shrink: 0; }
+.comp-savoir { flex: 1; }
+
+.btn-add-item {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--indigo);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: .3rem 0;
+  text-align: left;
+}
+.btn-add-item:hover { text-decoration: underline; }
+
+.btn-icon-danger {
+  font-size: 10px;
+  background: #fee2e2;
+  color: #b91c1c;
+  border: none;
+  border-radius: 4px;
+  padding: 3px 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+  line-height: 1.4;
+}
+
+.modal-actions {
+  display: flex;
+  gap: .6rem;
+  justify-content: flex-end;
+}
+
+.btn-primary {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--indigo);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: .5rem 1.2rem;
+  cursor: pointer;
+  transition: opacity .15s;
+}
+.btn-primary:disabled { opacity: .5; cursor: default; }
+.btn-primary:not(:disabled):hover { opacity: .85; }
+
+.btn-secondary {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--week-bg);
+  color: var(--text-2);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: .5rem 1.2rem;
+  cursor: pointer;
+  transition: all .15s;
+}
+.btn-secondary:hover { background: var(--ref-bg); color: var(--text-1); }
+
+.btn-danger {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  background: #b91c1c;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: .5rem 1.2rem;
+  cursor: pointer;
+  transition: opacity .15s;
+}
+.btn-danger:disabled { opacity: .5; cursor: default; }
+.btn-danger:not(:disabled):hover { opacity: .85; }
+
+.form-error {
+  font-size: 12px;
+  color: #b91c1c;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  padding: .45rem .75rem;
+}
+
+/* ─── États ─────────────────────────────────────────────────── */
 .loading { text-align: center; padding: 4rem; color: var(--text-3); font-size: 14px; }
 .error-banner {
   background: #FEF2F2; border: 1px solid #FECACA;
@@ -205,4 +462,7 @@ body {
   .level-nav, .block-nav, .print-btn { display: none !important; }
   .week { break-inside: avoid; margin-bottom: .5rem; }
   .session::before { display: none; }
+  .header-admin-zone, .session-admin-btns,
+  .add-seance-btn, .add-semaine-btn,
+  .modal-backdrop { display: none !important; }
 }
