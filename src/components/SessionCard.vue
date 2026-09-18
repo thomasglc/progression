@@ -4,7 +4,7 @@ import type { Seance } from '../types'
 defineProps<{ seance: Seance }>()
 
 const labels: Record<string, string> = {
-  tp: 'TP', cm: 'CM', ap: 'AP', eval: 'Évaluation',
+  tp: 'TP', cours: 'Cours', ap: 'AP', eval: 'Évaluation',
 }
 </script>
 

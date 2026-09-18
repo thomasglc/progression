@@ -145,7 +145,7 @@ body {
 .session:last-child { border-right: none; }
 .session::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
 .session.tp::before   { background: var(--green); }
-.session.cm::before   { background: var(--indigo); }
+.session.cours::before { background: var(--indigo); }
 .session.ap::before   { background: var(--amber); }
 .session.eval::before { background: linear-gradient(90deg, var(--amber), var(--violet)); }
 
@@ -155,7 +155,7 @@ body {
   text-transform: uppercase; padding: 2px 7px; border-radius: 4px;
 }
 .session.tp   .badge { background: var(--green-badge);  color: var(--green); }
-.session.cm   .badge { background: var(--indigo-badge); color: var(--indigo); }
+.session.cours .badge { background: var(--indigo-badge); color: var(--indigo); }
 .session.ap   .badge { background: var(--amber-badge);  color: var(--amber); }
 .session.eval .badge { background: var(--violet-badge); color: var(--violet); }
 .duration { font-size: 10.5px; color: var(--text-3); }
