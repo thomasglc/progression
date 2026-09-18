@@ -176,13 +176,17 @@ body {
 .s-ref { margin-top: .75rem; padding-top: .65rem; border-top: 1px dashed var(--border); }
 .s-obj { font-size: 11px; color: var(--text-2); margin-bottom: .45rem; line-height: 1.4; }
 .s-obj strong { color: var(--text-1); font-weight: 600; }
-.ref-row { display: flex; flex-direction: column; gap: .3rem; }
-.ref-item { display: flex; align-items: baseline; gap: .4rem; flex-wrap: wrap; }
+.ref-row { display: flex; flex-direction: column; gap: .45rem; }
 .ref-label { font-size: 9px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--text-3); white-space: nowrap; }
 .ref-chip {
   font-size: 9.5px; font-weight: 700; padding: 1px 6px; border-radius: 3px;
   border: 1px solid var(--chip-border); color: var(--text-2); background: var(--ref-bg);
+  white-space: nowrap; flex-shrink: 0;
 }
+.ref-comp { display: flex; flex-direction: column; gap: .2rem; }
+.ref-comp-main { display: flex; align-items: baseline; gap: .4rem; flex-wrap: wrap; }
+.ref-comp-name { font-size: 10.5px; color: var(--text-2); line-height: 1.35; }
+.ref-comp-savoir { display: flex; align-items: baseline; gap: .35rem; padding-left: .25rem; }
 .ref-sa { font-size: 10.5px; color: var(--text-3); font-style: italic; line-height: 1.3; }
 
 /* ─── Admin toolbar ────────────────────────────────────────── */

@@ -57,21 +57,15 @@ function onSaved() {
         <strong>Objectif :</strong> {{ seance.objectif }}
       </p>
       <div v-if="seance.competences?.length" class="ref-row">
-        <div class="ref-item">
-          <span class="ref-label">Compétence{{ seance.competences.length > 1 ? 's' : '' }}</span>
-          <span
-            v-for="c in seance.competences"
-            :key="c.id"
-            class="ref-chip"
-          >{{ c.competence.code }}</span>
-        </div>
-        <div
-          v-for="c in seance.competences.filter(c => c.savoir_associe)"
-          :key="'sa-' + c.id"
-          class="ref-item"
-        >
-          <span class="ref-label">Savoir</span>
-          <span class="ref-sa">{{ c.savoir_associe }}</span>
+        <div v-for="c in seance.competences" :key="c.id" class="ref-comp">
+          <div class="ref-comp-main">
+            <span class="ref-chip">{{ c.competence.code }}</span>
+            <span class="ref-comp-name">{{ c.competence.intitule }}</span>
+          </div>
+          <div v-if="c.savoir_associe" class="ref-comp-savoir">
+            <span class="ref-label">Savoir :</span>
+            <span class="ref-sa">{{ c.savoir_associe }}</span>
+          </div>
         </div>
       </div>
     </div>
