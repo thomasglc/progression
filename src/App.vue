@@ -20,9 +20,6 @@ onMounted(() => store.charger())
       </div>
       <h1>Progression pédagogique annuelle</h1>
       <p class="header-sub">Bloc 1 — Bloc 3 — Atelier Professionnel · 1ère et 2ème années</p>
-      <p class="header-note">
-        Référentiel BTS SIO – Session 2022. Les codes de compétences sont à vérifier dans le référentiel officiel.
-      </p>
     </header>
 
     <div v-if="store.error" class="error-banner">{{ store.error }}</div>
