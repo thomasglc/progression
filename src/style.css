@@ -88,9 +88,9 @@ body {
 .print-btn:hover { color: var(--text-1); border-color: var(--text-2); }
 
 .block-nav {
-  display: flex; gap: .4rem; flex-wrap: wrap;
+  display: flex; gap: .35rem; flex-wrap: wrap;
   margin-bottom: 1.75rem; padding: .35rem;
-  background: var(--nav-bg);
+  background: var(--week-bg);
   border: 1px solid var(--border);
   border-radius: 10px;
   width: fit-content;
@@ -99,11 +99,16 @@ body {
   font-size: 12px; font-weight: 600;
   padding: .4rem 1rem;
   border-radius: 7px; border: none;
-  background: transparent; color: var(--text-2);
+  background: transparent; color: var(--text-3);
   cursor: pointer; transition: all .15s; white-space: nowrap;
 }
-.block-btn:hover { color: var(--text-1); background: var(--week-bg); }
-.block-btn.active { background: var(--surface); color: var(--text-1); box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+.block-btn:hover { color: var(--text-1); background: rgba(255,255,255,.5); }
+.block-btn.active {
+  background: var(--surface);
+  color: var(--text-1);
+  box-shadow: 0 1px 4px rgba(0,0,0,.12), 0 0 0 1px rgba(0,0,0,.04);
+  font-weight: 700;
+}
 
 /* Period divider */
 .period-divider { display: flex; align-items: center; gap: .75rem; margin: 1.5rem 0; }

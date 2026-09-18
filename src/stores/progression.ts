@@ -61,7 +61,12 @@ export const useProgressionStore = defineStore('progression', () => {
     error.value = null
     try {
       semaines.value = await fetchSemaines()
-      if (niveaux.value.length) niveauActif.value = niveaux.value[0].id
+      if (niveaux.value.length) {
+        const firstNiveauId = niveaux.value[0].id
+        niveauActif.value = firstNiveauId
+        const blocs = blocsParNiveau.value.get(firstNiveauId)
+        blocActif.value = blocs?.[0]?.id ?? null
+      }
     } catch (e) {
       error.value = 'Impossible de charger la progression. Vérifiez la connexion à Directus.'
     } finally {
