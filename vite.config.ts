@@ -7,7 +7,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [vue()],
-    base: mode === 'production' ? '/progression/' : '/',
+    base: '/',
     server: {
       proxy: {
         '/directus-api': {
