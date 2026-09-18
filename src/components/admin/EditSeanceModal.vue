@@ -34,7 +34,7 @@ const links = ref<CompLink[]>(
 
 onMounted(async () => {
   try {
-    allCompetences.value = await fetchCompetences(auth.token!)
+    allCompetences.value = await fetchCompetences()
   } catch {
     error.value = 'Impossible de charger les compétences'
   }

@@ -24,7 +24,7 @@ interface CompLink { competence_id: number; savoir_associe: string }
 const links = ref<CompLink[]>([])
 
 onMounted(async () => {
-  try { allCompetences.value = await fetchCompetences(auth.token!) } catch {}
+  try { allCompetences.value = await fetchCompetences() } catch {}
 })
 
 function addPoint() { form.points.push('') }

@@ -40,7 +40,11 @@ function onSaved() {
       <span class="badge">{{ labels[seance.type] }}</span>
       <span class="duration">{{ seance.duree }}</span>
       <div v-if="auth.isAdmin" class="session-admin-btns">
-        <button class="btn-admin-edit" @click.stop="showEdit = true" title="Modifier">✏</button>
+        <button class="btn-admin-edit" @click.stop="showEdit = true" title="Modifier">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11.5 2.5a1.414 1.414 0 0 1 2 2L5 13H3v-2L11.5 2.5z"/>
+          </svg>
+        </button>
         <button class="btn-admin-delete" @click.stop="confirmDelete = true" title="Supprimer">✕</button>
       </div>
     </div>

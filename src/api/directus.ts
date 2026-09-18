@@ -31,7 +31,16 @@ export async function fetchSemaines(): Promise<Semaine[]> {
 
 // ─── Auth ────────────────────────────────────────────────────────────────────
 
-export async function loginDirectus(email: string, password: string): Promise<string> {
+export class AuthError extends Error {
+  constructor() { super('Session expirée, veuillez vous reconnecter') }
+}
+
+let _onAuthError: (() => void) | null = null
+export function setAuthErrorHandler(fn: () => void) { _onAuthError = fn }
+
+export interface AuthTokens { access_token: string; refresh_token: string }
+
+export async function loginDirectus(email: string, password: string): Promise<AuthTokens> {
   const resp = await fetch(`${directusUrl}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -39,7 +48,18 @@ export async function loginDirectus(email: string, password: string): Promise<st
   })
   if (!resp.ok) throw new Error('Identifiants incorrects')
   const data = await resp.json()
-  return data.data.access_token as string
+  return { access_token: data.data.access_token, refresh_token: data.data.refresh_token }
+}
+
+export async function refreshDirectusToken(refreshToken: string): Promise<AuthTokens> {
+  const resp = await fetch(`${directusUrl}/auth/refresh`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ refresh_token: refreshToken, mode: 'json' }),
+  })
+  if (!resp.ok) throw new AuthError()
+  const data = await resp.json()
+  return { access_token: data.data.access_token, refresh_token: data.data.refresh_token }
 }
 
 // ─── Admin helpers ────────────────────────────────────────────────────────────
@@ -48,63 +68,67 @@ function adminHeaders(token: string) {
   return { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
 }
 
-export async function fetchCompetences(token: string): Promise<Competence[]> {
-  const resp = await fetch(`${directusUrl}/items/competences?limit=-1&sort=code`, {
-    headers: { 'Authorization': `Bearer ${token}` },
-  })
-  const data = await resp.json()
-  return data.data as Competence[]
+async function adminFetch(url: string, init: RequestInit): Promise<Response> {
+  const resp = await fetch(url, init)
+  if (resp.status === 401 || resp.status === 403) {
+    _onAuthError?.()
+    throw new AuthError()
+  }
+  if (!resp.ok) throw new Error(`Erreur API: ${resp.status}`)
+  return resp
+}
+
+export async function fetchCompetences(): Promise<Competence[]> {
+  return client.request(
+    readItems('competences', { fields: ['id', 'code', 'intitule'], sort: ['code'], limit: -1 })
+  ) as Promise<Competence[]>
 }
 
 export async function patchSeance(id: number, body: object, token: string): Promise<void> {
-  const resp = await fetch(`${directusUrl}/items/seances/${id}`, {
+  await adminFetch(`${directusUrl}/items/seances/${id}`, {
     method: 'PATCH',
     headers: adminHeaders(token),
     body: JSON.stringify(body),
   })
-  if (!resp.ok) throw new Error('Erreur lors de la modification de la séance')
 }
 
 export async function createSeance(body: object, token: string): Promise<number> {
-  const resp = await fetch(`${directusUrl}/items/seances`, {
+  const resp = await adminFetch(`${directusUrl}/items/seances`, {
     method: 'POST',
     headers: adminHeaders(token),
     body: JSON.stringify(body),
   })
-  if (!resp.ok) throw new Error('Erreur lors de la création de la séance')
   const data = await resp.json()
   return data.data.id as number
 }
 
 export async function deleteSeance(id: number, token: string): Promise<void> {
-  await fetch(`${directusUrl}/items/seances/${id}`, {
+  await adminFetch(`${directusUrl}/items/seances/${id}`, {
     method: 'DELETE',
     headers: { 'Authorization': `Bearer ${token}` },
   })
 }
 
 export async function createSemaine(body: object, token: string): Promise<number> {
-  const resp = await fetch(`${directusUrl}/items/semaines`, {
+  const resp = await adminFetch(`${directusUrl}/items/semaines`, {
     method: 'POST',
     headers: adminHeaders(token),
     body: JSON.stringify(body),
   })
-  if (!resp.ok) throw new Error('Erreur lors de la création de la semaine')
   const data = await resp.json()
   return data.data.id as number
 }
 
 export async function createSeanceCompetence(body: object, token: string): Promise<void> {
-  const resp = await fetch(`${directusUrl}/items/seances_competences`, {
+  await adminFetch(`${directusUrl}/items/seances_competences`, {
     method: 'POST',
     headers: adminHeaders(token),
     body: JSON.stringify(body),
   })
-  if (!resp.ok) throw new Error('Erreur lors de la création du lien compétence')
 }
 
 export async function deleteSeanceCompetence(id: number, token: string): Promise<void> {
-  await fetch(`${directusUrl}/items/seances_competences/${id}`, {
+  await adminFetch(`${directusUrl}/items/seances_competences/${id}`, {
     method: 'DELETE',
     headers: { 'Authorization': `Bearer ${token}` },
   })
