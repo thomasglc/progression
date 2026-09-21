@@ -61,7 +61,7 @@ export const useProgressionStore = defineStore('progression', () => {
     error.value = null
     try {
       semaines.value = await fetchSemaines()
-      if (niveaux.value.length) {
+      if (niveauActif.value === null && niveaux.value.length) {
         const firstNiveauId = niveaux.value[0].id
         niveauActif.value = firstNiveauId
         const blocs = blocsParNiveau.value.get(firstNiveauId)
