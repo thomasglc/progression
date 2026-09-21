@@ -25,10 +25,15 @@ export interface Competence {
   intitule: string
 }
 
-export interface CompetenceSeance {
+export interface Savoir {
   id: number
+  intitule: string
   competence: Competence
-  savoir_associe: string
+}
+
+export interface SeanceSavoir {
+  id: number  // junction id (for deletion)
+  savoir: Savoir
 }
 
 export interface Seance {
@@ -38,7 +43,7 @@ export interface Seance {
   duree: string
   points: string[]
   objectif: string
-  competences: CompetenceSeance[]
+  savoirs: SeanceSavoir[]
   ordre: number
 }
 

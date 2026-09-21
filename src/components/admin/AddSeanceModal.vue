@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import type { Competence } from '../../types'
-import { fetchCompetences, createSeance, createSeanceCompetence } from '../../api/directus'
+import { ref, reactive, computed, onMounted } from 'vue'
+import type { Savoir } from '../../types'
+import { fetchSavoirs, createSeance, createSeanceSavoir } from '../../api/directus'
 import { useAuthStore } from '../../stores/auth'
 
 const props = defineProps<{ semaineId: number; nextOrdre: number }>()
@@ -10,7 +10,7 @@ const emit = defineEmits<{ close: []; saved: [] }>()
 const auth = useAuthStore()
 const saving = ref(false)
 const error = ref('')
-const allCompetences = ref<Competence[]>([])
+const allSavoirs = ref<Savoir[]>([])
 
 const form = reactive({
   titre: '',
@@ -20,19 +20,50 @@ const form = reactive({
   objectif: '',
 })
 
-interface CompLink { competence_id: number; savoir_associe: string }
-const links = ref<CompLink[]>([])
+const selectedSavoirIds = ref<Set<number>>(new Set())
+const selectedCompetenceIds = ref<Set<number>>(new Set())
+
+const allCompetences = computed(() => {
+  const map = new Map<number, { id: number; code: string; intitule: string }>()
+  for (const s of allSavoirs.value) {
+    if (!map.has(s.competence.id)) map.set(s.competence.id, s.competence)
+  }
+  return [...map.values()]
+})
+
+const filteredGroups = computed(() => {
+  const map = new Map<number, { id: number; code: string; intitule: string; savoirs: Savoir[] }>()
+  for (const s of allSavoirs.value) {
+    if (!selectedCompetenceIds.value.has(s.competence.id)) continue
+    const c = s.competence
+    if (!map.has(c.id)) map.set(c.id, { id: c.id, code: c.code, intitule: c.intitule, savoirs: [] })
+    map.get(c.id)!.savoirs.push(s)
+  }
+  return [...map.values()]
+})
+
+function toggleCompetence(id: number) {
+  if (selectedCompetenceIds.value.has(id)) {
+    selectedCompetenceIds.value.delete(id)
+    for (const s of allSavoirs.value) {
+      if (s.competence.id === id) selectedSavoirIds.value.delete(s.id)
+    }
+  } else {
+    selectedCompetenceIds.value.add(id)
+  }
+}
 
 onMounted(async () => {
-  try { allCompetences.value = await fetchCompetences() } catch {}
+  try { allSavoirs.value = await fetchSavoirs() } catch {}
 })
+
+function toggleSavoir(id: number) {
+  if (selectedSavoirIds.value.has(id)) selectedSavoirIds.value.delete(id)
+  else selectedSavoirIds.value.add(id)
+}
 
 function addPoint() { form.points.push('') }
 function removePoint(i: number) { form.points.splice(i, 1) }
-function addLink() {
-  links.value.push({ competence_id: allCompetences.value[0]?.id ?? 0, savoir_associe: '' })
-}
-function removeLink(i: number) { links.value.splice(i, 1) }
 
 async function save() {
   saving.value = true
@@ -48,14 +79,8 @@ async function save() {
       ordre: props.nextOrdre,
     }, auth.token!)
 
-    for (const link of links.value) {
-      if (link.competence_id) {
-        await createSeanceCompetence({
-          seance: seanceId,
-          competence: link.competence_id,
-          savoir_associe: link.savoir_associe.trim(),
-        }, auth.token!)
-      }
+    for (const savoirId of selectedSavoirIds.value) {
+      await createSeanceSavoir(seanceId, savoirId, auth.token!)
     }
     emit('saved')
   } catch (e) {
@@ -109,16 +134,45 @@ async function save() {
 
         <div class="field" style="margin-top:.75rem">
           <label class="field-label">Compétences</label>
-          <div style="display:flex;flex-direction:column;gap:.5rem">
-            <div v-for="(link, i) in links" :key="i" class="comp-row">
-              <select v-model="link.competence_id" class="field-input comp-select">
-                <option v-for="c in allCompetences" :key="c.id" :value="c.id">{{ c.code }}</option>
-              </select>
-              <input v-model="link.savoir_associe" type="text" class="field-input comp-savoir" placeholder="Savoir associé…" />
-              <button type="button" class="btn-icon-danger" @click="removeLink(i)">✕</button>
+          <div v-if="allSavoirs.length === 0" style="font-size:12px;color:var(--text-3);margin-top:.35rem">
+            Chargement…
+          </div>
+          <div v-else class="comp-selector">
+            <button
+              v-for="comp in allCompetences"
+              :key="comp.id"
+              type="button"
+              class="comp-chip"
+              :class="{ selected: selectedCompetenceIds.has(comp.id) }"
+              :title="comp.intitule"
+              @click="toggleCompetence(comp.id)"
+            >{{ comp.code }}</button>
+          </div>
+        </div>
+
+        <div v-if="selectedCompetenceIds.size > 0" class="field" style="margin-top:.75rem">
+          <label class="field-label">Savoirs traités</label>
+          <div class="savoir-picker">
+            <div v-for="group in filteredGroups" :key="group.id" class="savoir-group">
+              <div class="savoir-group-header">
+                <span class="ref-chip">{{ group.code }}</span>
+                <span class="savoir-group-name">{{ group.intitule }}</span>
+              </div>
+              <label
+                v-for="s in group.savoirs"
+                :key="s.id"
+                class="savoir-option"
+                :class="{ selected: selectedSavoirIds.has(s.id) }"
+              >
+                <input
+                  type="checkbox"
+                  :checked="selectedSavoirIds.has(s.id)"
+                  @change="toggleSavoir(s.id)"
+                />
+                {{ s.intitule }}
+              </label>
             </div>
           </div>
-          <button type="button" class="btn-add-item" @click="addLink">+ Ajouter une compétence</button>
         </div>
 
         <div v-if="error" class="form-error" style="margin-top:.75rem">{{ error }}</div>

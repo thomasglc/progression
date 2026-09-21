@@ -40,6 +40,7 @@ function onSaved() {
           v-for="seance in [...semaine.seances].sort((a, b) => a.ordre - b.ordre)"
           :key="seance.id"
           :seance="seance"
+          :semaine-id="semaine.id"
           @refresh="$emit('refresh')"
         />
         <button

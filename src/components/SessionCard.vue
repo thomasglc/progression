@@ -1,17 +1,28 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import type { Seance } from '../types'
 import { useAuthStore } from '../stores/auth'
 import { deleteSeance } from '../api/directus'
 import EditSeanceModal from './admin/EditSeanceModal.vue'
 
-const props = defineProps<{ seance: Seance }>()
+const props = defineProps<{ seance: Seance; semaineId: number }>()
 const emit = defineEmits<{ refresh: [] }>()
 
 const auth = useAuthStore()
 const showEdit = ref(false)
 const confirmDelete = ref(false)
 const deleting = ref(false)
+
+// Group savoirs by competence for display
+const savoirsByCompetence = computed(() => {
+  const map = new Map<number, { code: string; intitule: string; savoirs: string[] }>()
+  for (const ss of props.seance.savoirs ?? []) {
+    const comp = ss.savoir.competence
+    if (!map.has(comp.id)) map.set(comp.id, { code: comp.code, intitule: comp.intitule, savoirs: [] })
+    map.get(comp.id)!.savoirs.push(ss.savoir.intitule)
+  }
+  return [...map.values()]
+})
 
 const labels: Record<string, string> = {
   tp: 'TP', cours: 'Cours', ap: 'AP', eval: 'Évaluation',
@@ -56,16 +67,15 @@ function onSaved() {
       <p class="s-obj">
         <strong>Objectif :</strong> {{ seance.objectif }}
       </p>
-      <div v-if="seance.competences?.length" class="ref-row">
-        <div v-for="c in seance.competences" :key="c.id" class="ref-comp">
+      <div v-if="savoirsByCompetence.length" class="ref-row">
+        <div v-for="comp in savoirsByCompetence" :key="comp.code" class="ref-comp">
           <div class="ref-comp-main">
-            <span class="ref-chip">{{ c.competence.code }}</span>
-            <span class="ref-comp-name">{{ c.competence.intitule }}</span>
+            <span class="ref-chip">{{ comp.code }}</span>
+            <span class="ref-comp-name">{{ comp.intitule }}</span>
           </div>
-          <div v-if="c.savoir_associe" class="ref-comp-savoir">
-            <span class="ref-label">Savoir :</span>
-            <span class="ref-sa">{{ c.savoir_associe }}</span>
-          </div>
+          <ul class="ref-savoirs-list">
+            <li v-for="(s, i) in comp.savoirs" :key="i" class="ref-sa">{{ s }}</li>
+          </ul>
         </div>
       </div>
     </div>
@@ -91,6 +101,7 @@ function onSaved() {
   <EditSeanceModal
     v-if="showEdit"
     :seance="seance"
+    :semaine-id="semaineId"
     @close="showEdit = false"
     @saved="onSaved"
   />

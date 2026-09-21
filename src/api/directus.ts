@@ -1,5 +1,5 @@
 import { createDirectus, rest, readItems } from '@directus/sdk'
-import type { Semaine, Competence } from '../types'
+import type { Semaine, Competence, Savoir } from '../types'
 
 const directusUrl = import.meta.env.DEV
   ? new URL('/directus-api', location.href).href
@@ -17,11 +17,12 @@ export async function fetchSemaines(): Promise<Semaine[]> {
         'periode.bloc.id', 'periode.bloc.nom', 'periode.bloc.code', 'periode.bloc.couleur',
         'seances.id', 'seances.titre', 'seances.type', 'seances.duree',
         'seances.points', 'seances.objectif', 'seances.ordre',
-        'seances.competences.id',
-        'seances.competences.savoir_associe',
-        'seances.competences.competence.id',
-        'seances.competences.competence.code',
-        'seances.competences.competence.intitule',
+        'seances.savoirs.id',
+        'seances.savoirs.savoir.id',
+        'seances.savoirs.savoir.intitule',
+        'seances.savoirs.savoir.competence.id',
+        'seances.savoirs.savoir.competence.code',
+        'seances.savoirs.savoir.competence.intitule',
       ],
       sort: ['periode.niveau.ordre', 'periode.bloc.ordre', 'periode.ordre', 'numero'],
       limit: -1,
@@ -84,6 +85,16 @@ export async function fetchCompetences(): Promise<Competence[]> {
   ) as Promise<Competence[]>
 }
 
+export async function fetchSavoirs(): Promise<Savoir[]> {
+  return client.request(
+    readItems('savoirs', {
+      fields: ['id', 'intitule', 'competence.id', 'competence.code', 'competence.intitule'],
+      sort: ['competence.code', 'intitule'],
+      limit: -1,
+    })
+  ) as Promise<Savoir[]>
+}
+
 export async function patchSeance(id: number, body: object, token: string): Promise<void> {
   await adminFetch(`${directusUrl}/items/seances/${id}`, {
     method: 'PATCH',
@@ -119,16 +130,16 @@ export async function createSemaine(body: object, token: string): Promise<number
   return data.data.id as number
 }
 
-export async function createSeanceCompetence(body: object, token: string): Promise<void> {
-  await adminFetch(`${directusUrl}/items/seances_competences`, {
+export async function createSeanceSavoir(seanceId: number, savoirId: number, token: string): Promise<void> {
+  await adminFetch(`${directusUrl}/items/seances_savoirs`, {
     method: 'POST',
     headers: adminHeaders(token),
-    body: JSON.stringify(body),
+    body: JSON.stringify({ seance: seanceId, savoir: savoirId }),
   })
 }
 
-export async function deleteSeanceCompetence(id: number, token: string): Promise<void> {
-  await adminFetch(`${directusUrl}/items/seances_competences/${id}`, {
+export async function deleteSeanceSavoir(junctionId: number, token: string): Promise<void> {
+  await adminFetch(`${directusUrl}/items/seances_savoirs/${junctionId}`, {
     method: 'DELETE',
     headers: { 'Authorization': `Bearer ${token}` },
   })
