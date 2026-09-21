@@ -5,8 +5,8 @@ import { useAuthStore } from '../stores/auth'
 import { deleteSeance } from '../api/directus'
 import EditSeanceModal from './admin/EditSeanceModal.vue'
 
-const props = defineProps<{ seance: Seance; semaineId: number }>()
-const emit = defineEmits<{ refresh: [] }>()
+const props = defineProps<{ seance: Seance; semaineId: number; expanded: boolean }>()
+const emit = defineEmits<{ refresh: []; toggle: [] }>()
 
 const auth = useAuthStore()
 const showEdit = ref(false)
@@ -46,7 +46,7 @@ function onSaved() {
 </script>
 
 <template>
-  <div class="session" :class="seance.type">
+  <div class="session" :class="seance.type" @click="emit('toggle')">
     <div class="session-head">
       <span class="badge">{{ labels[seance.type] }}</span>
       <span class="duration">{{ seance.duree }}</span>
@@ -60,10 +60,10 @@ function onSaved() {
       </div>
     </div>
     <div class="s-title">{{ seance.titre }}</div>
-    <ul class="s-points">
+    <ul v-show="expanded" class="s-points">
       <li v-for="(point, i) in seance.points" :key="i">{{ point }}</li>
     </ul>
-    <div class="s-ref">
+    <div v-show="expanded" class="s-ref">
       <p class="s-obj">
         <strong>Objectif :</strong> {{ seance.objectif }}
       </p>

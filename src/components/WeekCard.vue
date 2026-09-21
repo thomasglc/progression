@@ -10,6 +10,7 @@ const emit = defineEmits<{ refresh: [] }>()
 
 const auth = useAuthStore()
 const showAdd = ref(false)
+const expanded = ref(false)
 
 function nextOrdre(): number {
   if (!props.semaine.seances.length) return 1
@@ -41,6 +42,8 @@ function onSaved() {
           :key="seance.id"
           :seance="seance"
           :semaine-id="semaine.id"
+          :expanded="expanded"
+          @toggle="expanded = !expanded"
           @refresh="$emit('refresh')"
         />
         <button

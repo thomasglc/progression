@@ -146,6 +146,7 @@ body {
   position: relative; padding: 1.1rem 1.2rem 1rem;
   border-right: 1px solid var(--border);
   display: flex; flex-direction: column;
+  cursor: pointer;
 }
 .session:last-child { border-right: none; }
 .session::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
