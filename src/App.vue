@@ -65,7 +65,7 @@ function onSemaineSaved() {
           :class="{ active: store.niveauActif === niveau.id }"
           @click="store.setNiveau(niveau.id)"
         >{{ niveau.nom }}</button>
-        <a class="roadmap-btn" href="/roadmap.pdf" target="_blank" title="Voir la roadmap globale">🗺 Roadmap</a>
+        <a class="roadmap-btn" href="/roadmap.pdf" target="_blank" title="Voir la roadmap globale">Roadmap</a>
         <button class="print-btn" onclick="window.print()">🖨 Imprimer / PDF</button>
       </nav>
 
