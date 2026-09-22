@@ -73,8 +73,21 @@ body {
 .level-btn:hover { color: var(--text-1); border-color: var(--text-2); }
 .level-btn.active { background: var(--text-1); color: var(--bg); border-color: var(--text-1); }
 
-.print-btn {
+.roadmap-btn {
   margin-left: auto;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px; font-weight: 500;
+  padding: .45rem 1rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-3);
+  text-decoration: none;
+  transition: all .15s;
+}
+.roadmap-btn:hover { color: var(--text-1); border-color: var(--text-2); }
+
+.print-btn {
   font-family: 'Inter', sans-serif;
   font-size: 12px; font-weight: 500;
   padding: .45rem 1rem;
@@ -508,12 +521,12 @@ body {
   .session { border-right: none; border-bottom: 1px solid var(--border); }
   .session:last-child { border-bottom: none; }
   .block-nav { width: 100%; }
-  .print-btn { margin-left: 0; }
+  .roadmap-btn, .print-btn { margin-left: 0; }
 }
 
 @media print {
   body { padding: 0; background: #fff; font-size: 10pt; }
-  .level-nav, .block-nav, .print-btn { display: none !important; }
+  .level-nav, .block-nav, .print-btn, .roadmap-btn { display: none !important; }
   .week { break-inside: avoid; margin-bottom: .5rem; }
   .session::before { display: none; }
   .header-admin-zone, .session-admin-btns,
