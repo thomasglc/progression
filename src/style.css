@@ -132,6 +132,40 @@ body {
   color: var(--text-3); white-space: nowrap;
 }
 
+/* Tranches entre deux vacances */
+.tranche { margin-bottom: 1rem; }
+.tranche-header {
+  display: flex; align-items: center; gap: .65rem; flex-wrap: wrap;
+  width: 100%; padding: .8rem 1.1rem;
+  background: var(--surface);
+  border: 1px solid var(--border); border-radius: 10px;
+  font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 800;
+  color: var(--text-1); text-align: left;
+  cursor: pointer; transition: border-color .15s;
+}
+.tranche-header:hover:not(:disabled) { border-color: var(--text-3); }
+.tranche-header:focus-visible { outline: 2px solid var(--indigo); outline-offset: 2px; }
+.tranche-header:disabled { cursor: default; }
+.tranche-chevron { color: var(--text-3); font-size: 12px; width: 12px; transition: transform .15s; }
+.tranche-chevron.ouverte { transform: rotate(90deg); }
+.tranche-etat {
+  font-family: 'Inter', sans-serif; font-size: 10.5px; font-weight: 600;
+  padding: 2px 9px; border-radius: 10px;
+  background: var(--week-bg); color: var(--text-3);
+}
+.tranche-etat.en-cours { background: var(--indigo-badge); color: var(--indigo); }
+.tranche-meta { margin-left: auto; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 400; color: var(--text-3); }
+.tranche--passee .tranche-header,
+.tranche--a-venir .tranche-header:disabled { color: var(--text-3); }
+
+.vacances {
+  display: flex; gap: .5rem; flex-wrap: wrap; align-items: baseline;
+  margin: 1rem 0; padding: .65rem 1.1rem;
+  border: 1px dashed #D9B46A; border-radius: 10px;
+  background: repeating-linear-gradient(135deg, #FBF5E8 0 10px, #F5EAD2 10px 20px);
+  color: var(--amber); font-size: 13px;
+}
+
 /* Week cards */
 .weeks { display: flex; flex-direction: column; gap: 1.25rem; margin-bottom: 1rem; }
 .week { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
@@ -149,6 +183,18 @@ body {
   color: var(--amber); line-height: 1;
 }
 .week-word { font-size: 7.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--text-3); }
+.week-dates { margin-top: 4px; font-size: 10px; line-height: 1.25; color: var(--text-2); text-align: center; }
+.week-now {
+  margin-top: 5px; font-size: 7.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--indigo); text-align: center;
+}
+.week--courante { border-color: var(--indigo); box-shadow: 0 0 0 2px var(--indigo-badge); }
+.week--passee { opacity: .55; }
+.week-ferie {
+  padding: .35rem 1.1rem; font-size: 12px; font-weight: 600; color: var(--amber);
+  background: repeating-linear-gradient(135deg, #FBF5E8 0 8px, #F5EAD2 8px 16px);
+  border-bottom: 1px solid var(--border);
+}
 
 .week-sessions { display: grid; grid-template-columns: 1fr 1.35fr 1fr; }
 .week-sessions.two-col { grid-template-columns: 1fr 1fr; }
@@ -522,12 +568,17 @@ body {
   .session:last-child { border-bottom: none; }
   .block-nav { width: 100%; }
   .roadmap-btn, .print-btn { margin-left: 0; }
+  .week-dates, .week-now { margin-top: 0; }
+  .tranche-meta { margin-left: 0; width: 100%; }
 }
 
 @media print {
   body { padding: 0; background: #fff; font-size: 10pt; }
   .level-nav, .block-nav, .print-btn, .roadmap-btn { display: none !important; }
   .week { break-inside: avoid; margin-bottom: .5rem; }
+  .week--passee { opacity: 1; }
+  .week--courante { box-shadow: none; }
+  .tranche-chevron { display: none; }
   .session::before { display: none; }
   .header-admin-zone, .session-admin-btns,
   .add-seance-btn, .add-semaine-btn,

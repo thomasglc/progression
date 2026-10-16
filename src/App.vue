@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import type { Periode } from './types'
+import { ref, computed, onMounted } from 'vue'
+import type { Periode, Semaine } from './types'
 import { useProgressionStore } from './stores/progression'
 import { useAuthStore } from './stores/auth'
+import { tranches, semaineCalendrier, etatTranche, aujourdhui, plageCourte, ANNEE_SCOLAIRE } from './calendrier'
+import type { Tranche, Etat } from './calendrier'
 import WeekCard from './components/WeekCard.vue'
 import PeriodeDivider from './components/PeriodeDivider.vue'
+import TrancheSection from './components/TrancheSection.vue'
+import VacancesBandeau from './components/VacancesBandeau.vue'
 import LoginModal from './components/LoginModal.vue'
 import AddSemaineModal from './components/admin/AddSemaineModal.vue'
 
@@ -12,6 +16,78 @@ const store = useProgressionStore()
 const auth = useAuthStore()
 
 onMounted(() => store.charger())
+
+interface GroupePeriode { periode: Periode; semaines: Semaine[]; dernierDeLaPeriode: boolean }
+interface TrancheAffichee { cle: string; tranche: Tranche | null; etat: Etat; groupes: GroupePeriode[] }
+
+function grouper(semaines: Semaine[], derniers: Map<number, number>): GroupePeriode[] {
+  const groupes: GroupePeriode[] = []
+  for (const s of semaines) {
+    const g = groupes[groupes.length - 1]
+    if (g && g.periode.id === s.periode.id) g.semaines.push(s)
+    else groupes.push({ periode: s.periode, semaines: [s], dernierDeLaPeriode: false })
+  }
+  for (const g of groupes) g.dernierDeLaPeriode = g.semaines[g.semaines.length - 1].numero === derniers.get(g.periode.id)
+  return groupes
+}
+
+// Tranches de la première ayant des semaines jusqu'à celle qui suit la dernière (à préparer)
+const tranchesAffichees = computed<TrancheAffichee[]>(() => {
+  const ajd = aujourdhui()
+  const semaines = [...store.semainesFiltrees].sort((a, b) => a.numero - b.numero)
+  const derniers = new Map<number, number>()
+  for (const s of semaines) derniers.set(s.periode.id, Math.max(derniers.get(s.periode.id) ?? 0, s.numero))
+
+  const parTranche = new Map<number, Semaine[]>()
+  for (const s of semaines) {
+    const i = semaineCalendrier(s.numero)?.tranche ?? -1
+    parTranche.set(i, [...(parTranche.get(i) ?? []), s])
+  }
+
+  const resultat: TrancheAffichee[] = []
+  const indices = [...parTranche.keys()].filter(i => i >= 0)
+  if (indices.length) {
+    const premier = Math.min(...indices)
+    const dernier = Math.min(Math.max(...indices) + 1, tranches.length - 1)
+    for (const t of tranches.slice(premier, dernier + 1)) {
+      resultat.push({ cle: `${ANNEE_SCOLAIRE}:${t.index}`, tranche: t, etat: etatTranche(t, ajd), groupes: grouper(parTranche.get(t.index) ?? [], derniers) })
+    }
+  }
+  const horsCalendrier = parTranche.get(-1)
+  if (horsCalendrier) resultat.push({ cle: `${ANNEE_SCOLAIRE}:hors`, tranche: null, etat: 'a-venir', groupes: grouper(horsCalendrier, derniers) })
+  return resultat
+})
+
+function meta(t: TrancheAffichee): string {
+  if (!t.tranche) return 'au-delà du calendrier scolaire'
+  const plage = `S${t.tranche.premiereSemaine} à S${t.tranche.derniereSemaine} · ${plageCourte(t.tranche.debut, t.tranche.fin)}`
+  return t.groupes.length ? plage : `${plage} · pas encore préparé`
+}
+
+// Les tranches terminées sont repliées par défaut ; un choix manuel est retenu par le navigateur
+const CLE_STOCKAGE = 'progression:tranches'
+const ouvertures = ref<Record<string, boolean>>(lireOuvertures())
+
+function lireOuvertures(): Record<string, boolean> {
+  try {
+    return JSON.parse(localStorage.getItem(CLE_STOCKAGE) ?? '{}')
+  } catch {
+    return {}
+  }
+}
+
+function estOuverte(t: TrancheAffichee): boolean {
+  return ouvertures.value[t.cle] ?? t.etat !== 'passee'
+}
+
+function basculer(t: TrancheAffichee) {
+  ouvertures.value = { ...ouvertures.value, [t.cle]: !estOuverte(t) }
+  try {
+    localStorage.setItem(CLE_STOCKAGE, JSON.stringify(ouvertures.value))
+  } catch {
+    // stockage indisponible (navigation privée) : le choix vaut pour la visite en cours
+  }
+}
 
 const showLogin = ref(false)
 const addSemaineTarget = ref<Periode | null>(null)
@@ -79,23 +155,38 @@ function onSemaineSaved() {
         >{{ bloc.nom }}</button>
       </nav>
 
-      <template v-for="periode in store.periodesActuelles" :key="periode.id">
-        <PeriodeDivider :periode="periode" />
-        <div class="weeks">
-          <WeekCard
-            v-for="semaine in store.semainesDePeriode(periode.id)"
-            :key="semaine.id"
-            :semaine="semaine"
-            @refresh="store.charger()"
-          />
-          <button
-            v-if="auth.isAdmin"
-            class="add-semaine-btn"
-            @click="openAddSemaine(periode)"
-          >
-            + Ajouter une semaine
-          </button>
-        </div>
+      <template v-for="(t, i) in tranchesAffichees" :key="t.cle">
+        <VacancesBandeau
+          v-if="i > 0 && tranchesAffichees[i - 1].tranche?.vacancesApres"
+          v-bind="tranchesAffichees[i - 1].tranche!.vacancesApres!"
+        />
+        <TrancheSection
+          :nom="t.tranche?.nom ?? 'Semaines hors calendrier'"
+          :etat="t.etat"
+          :meta="meta(t)"
+          :ouverte="estOuverte(t)"
+          :vide="!t.groupes.length"
+          @basculer="basculer(t)"
+        >
+          <template v-for="(g, gi) in t.groupes" :key="`${t.cle}-${gi}`">
+            <PeriodeDivider :periode="g.periode" />
+            <div class="weeks">
+              <WeekCard
+                v-for="semaine in g.semaines"
+                :key="semaine.id"
+                :semaine="semaine"
+                @refresh="store.charger()"
+              />
+              <button
+                v-if="auth.isAdmin && g.dernierDeLaPeriode"
+                class="add-semaine-btn"
+                @click="openAddSemaine(g.periode)"
+              >
+                + Ajouter une semaine
+              </button>
+            </div>
+          </template>
+        </TrancheSection>
       </template>
     </template>
 

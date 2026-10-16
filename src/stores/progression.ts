@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { fetchSemaines } from '../api/directus'
-import type { Semaine, Niveau, Bloc, Periode } from '../types'
+import type { Semaine, Niveau, Bloc } from '../types'
 
 export const useProgressionStore = defineStore('progression', () => {
   const semaines = ref<Semaine[]>([])
@@ -42,14 +42,6 @@ export const useProgressionStore = defineStore('progression', () => {
     })
   })
 
-  const periodesActuelles = computed<Periode[]>(() => {
-    const map = new Map<number, Periode>()
-    semainesFiltrees.value.forEach(s => {
-      if (!map.has(s.periode.id)) map.set(s.periode.id, s.periode)
-    })
-    return [...map.values()].sort((a, b) => a.ordre - b.ordre)
-  })
-
   function semainesDePeriode(periodeId: number): Semaine[] {
     return semainesFiltrees.value
       .filter(s => s.periode.id === periodeId)
@@ -87,7 +79,7 @@ export const useProgressionStore = defineStore('progression', () => {
   return {
     semaines, loading, error,
     niveauActif, blocActif,
-    niveaux, blocsParNiveau, semainesFiltrees, periodesActuelles,
+    niveaux, blocsParNiveau, semainesFiltrees,
     semainesDePeriode, charger, setNiveau, setBloc,
   }
 })
