@@ -42,6 +42,24 @@ export const useProgressionStore = defineStore('progression', () => {
     })
   })
 
+  // Nombre de séances le plus fréquent dans une semaine de l'onglet affiché
+  const seancesParSemaine = computed(() => {
+    const occurrences = new Map<number, number>()
+    for (const s of semainesFiltrees.value) {
+      const n = s.seances.length
+      if (n) occurrences.set(n, (occurrences.get(n) ?? 0) + 1)
+    }
+    let habituel = 0
+    let maxOccurrences = 0
+    for (const [n, occ] of occurrences) {
+      if (occ > maxOccurrences || (occ === maxOccurrences && n > habituel)) {
+        habituel = n
+        maxOccurrences = occ
+      }
+    }
+    return habituel
+  })
+
   function semainesDePeriode(periodeId: number): Semaine[] {
     return semainesFiltrees.value
       .filter(s => s.periode.id === periodeId)
@@ -79,7 +97,7 @@ export const useProgressionStore = defineStore('progression', () => {
   return {
     semaines, loading, error,
     niveauActif, blocActif,
-    niveaux, blocsParNiveau, semainesFiltrees,
+    niveaux, blocsParNiveau, semainesFiltrees, seancesParSemaine,
     semainesDePeriode, charger, setNiveau, setBloc,
   }
 })

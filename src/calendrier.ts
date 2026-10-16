@@ -111,13 +111,19 @@ export function etatTranche(t: Tranche, ajd: Date): Etat {
   return 'en-cours'
 }
 
-export function feriesDeLaSemaine(numero: number): string[] {
+export interface Ferie {
+  jour: string      // « Mercredi 11 novembre »
+  nom: string       // « Férié », « Pont de l'Ascension »…
+  position: number  // 0 pour lundi … 4 pour vendredi
+}
+
+export function feriesDeLaSemaine(numero: number): Ferie[] {
   const s = semaineCalendrier(numero)
   if (!s) return []
   return JOURS_FERIES
     .map(f => ({ date: jour(f.date), nom: f.nom }))
     .filter(f => f.date >= s.lundi && f.date <= s.vendredi)
-    .map(f => `${majuscule(jourComplet.format(f.date))} : ${f.nom}`)
+    .map(f => ({ jour: majuscule(jourComplet.format(f.date)), nom: majuscule(f.nom), position: f.date.getDay() - 1 }))
 }
 
 // ── Formats d'affichage ────────────────────────────────────────────────────
